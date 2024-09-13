@@ -1,0 +1,104 @@
+void _showAddTimerModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        TimeOfDay selectedTime = TimeOfDay.now();
+        TextEditingController nameController = TextEditingController();
+        bool repeat = false;
+        bool alarmSound = false;
+
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // TimePicker
+                TimePickerSpinner(
+                  is24HourMode: true,
+                  normalTextStyle:
+                      const TextStyle(fontSize: 24, color: Colors.grey),
+                  highlightedTextStyle:
+                      const TextStyle(fontSize: 24, color: Colors.blue),
+                  spacing: 50,
+                  itemHeight: 60,
+                  isForce2Digits: true,
+                  onTimeChange: (time) {
+                    setState(() {
+                      selectedTime =
+                          TimeOfDay(hour: time.hour, minute: time.minute);
+                    });
+                  },
+                ),
+                //
+
+                // Alarm Name TextField
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Alarm Name',
+                  ),
+                ),
+                //
+
+                // Repeat Switch
+                SwitchListTile(
+                  title: const Text('Repeat'),
+                  value: repeat,
+                  onChanged: (bool value) {
+                    setState(() {
+                      repeat = value;
+                    });
+                  },
+                ),
+                //
+
+                // Alarm Sound Switch
+                SwitchListTile(
+                  title: const Text('Alarm Sound'),
+                  value: alarmSound,
+                  onChanged: (bool value) {
+                    setState(() {
+                      alarmSound = value;
+                    });
+                  },
+                ),
+                //
+
+                // Submit Button
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final user = _auth.currentUser;
+                      if (user != null) {
+                        await FirebaseFirestore.instance
+                            .collection('alarms')
+                            .add({
+                          'time': selectedTime.format(context),
+                          'name': nameController.text,
+                          'repeat': repeat,
+                          'alarmSound': alarmSound,
+                          'userId': user.uid,
+                          'alarmActive': false, // Set default value
+                        });
+                        fetchUserAlarms();
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString())),
+                      );
+                    }
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }

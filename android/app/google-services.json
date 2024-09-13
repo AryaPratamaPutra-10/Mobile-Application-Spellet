@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "906274384635",
+    "project_id": "spelet-2",
+    "storage_bucket": "spelet-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906274384635:android:b6131cffbe6bf837c61e5e",
+        "android_client_info": {
+          "package_name": "com.example.spelet_v3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUcXO7DvLTbf18axRPWaoRAeJB4675guo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,245 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+//import 'package:gauge_indicator/gauge_indicator.dart';
+import 'package:spelet_v3/Component/Gauge_2/FoodGauge2.dart';
+import 'package:spelet_v3/Component/Gauge_2/PhWaterGauge2.dart';
+import 'package:spelet_v3/Component/Gauge_2/TemperatureGauge2.dart';
+import 'package:spelet_v3/Screen/TimerScreen.dart';
+import 'package:dotted_border/dotted_border.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({
+    super.key,
+  });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Carousel List
+  final myItems = [
+    const FoodGauge2(),
+    const TemperatureGauge2(),
+    const PhWaterGauge2(),
+  ];
+
+  int myCurrentIndex = 0;
+  //
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.white,
+      //AppBar
+      appBar: AppBar(
+        toolbarHeight: 70,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.blue,
+          ),
+          style: ButtonStyle(
+            overlayColor: WidgetStateColor.resolveWith((states) => Colors.blue),
+          ),
+          onPressed: () {},
+        ),
+        title: Image.asset(
+          'assets/Logo2.png',
+          fit: BoxFit.contain,
+          height: 75,
+          color: Colors.white,
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {},
+            style: ButtonStyle(
+              overlayColor: WidgetStatePropertyAll(Colors.blue[50]),
+            ),
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
+          ),
+        ],
+        backgroundColor: Colors.blue,
+      ),
+      //
+
+      //Body
+      body: ListView(
+        children: [
+          //Devices
+          Container(
+            height: 70,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: DottedBorder(
+              borderType: BorderType.RRect,
+              radius: const Radius.circular(10),
+              dashPattern: const [10, 10],
+              color: Colors.blue.shade300,
+              strokeWidth: 2,
+              child: InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(10),
+                overlayColor: WidgetStateColor.resolveWith(
+                    (states) => Colors.blue.shade50),
+                child: Container(
+                  height: 50,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    'Choose Devices',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          //
+
+          // Indicator
+          Container(
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            alignment: Alignment.centerLeft,
+            color: Colors.white,
+            padding: const EdgeInsets.only(left: 15),
+
+            //Indicator
+            child: const Text(
+              'Indicator',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+          //
+          CarouselSlider(
+            items: myItems,
+            options: CarouselOptions(
+              height: 300,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  myCurrentIndex = index;
+                });
+              },
+            ),
+          ),
+          //
+
+          //Timer
+          Container(
+            height: 20,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            alignment: Alignment.centerLeft,
+            color: Colors.white,
+
+            //Timer
+            child: TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TimerScreen(),
+                  ),
+                );
+              },
+              style: ButtonStyle(
+                padding: const WidgetStatePropertyAll(
+                    EdgeInsets.only(left: 10, right: 10)),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                ),
+                shadowColor: WidgetStateColor.transparent,
+                backgroundColor: const WidgetStatePropertyAll(Colors.white),
+                overlayColor: WidgetStateColor.resolveWith(
+                    (states) => Colors.blue.shade50),
+              ),
+              child: const Text(
+                'Timer',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+
+          // Timer List
+          SizedBox(
+            height: 330,
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              children: <Widget>[
+                //Timer 1
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: 100,
+                  height: 100,
+                ),
+                //
+
+                //Timer 2
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: 100,
+                  height: 100,
+                ),
+                //
+
+                //Timer 3
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: 100,
+                  height: 100,
+                ),
+                //
+              ],
+            ),
+          ),
+          //
+        ],
+      ),
+      //
+    );
+  }
+}
+
+"Email: ${user!.email ?? 'N/A'}"
+
+    user = FirebaseAuth.instance.currentUser;
+
+    child: user == null

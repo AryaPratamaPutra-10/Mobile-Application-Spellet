@@ -1,0 +1,201 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:spelet_v3/Screen/HomeScreen.dart';
+//import 'package:spelet_v3/Screen/LoginScreen.dart';
+//import 'package:spelet_v3/Screen/ProfileScreen.dart';
+import 'package:spelet_v3/Screen/SettingScreen.dart';
+import 'package:quickalert/quickalert.dart';
+
+class NavbarScreen extends StatefulWidget {
+  final bool showLoginSuccess;
+  const NavbarScreen({
+    super.key,
+    this.showLoginSuccess = false,
+  });
+
+  @override
+  _NavbarScreenState createState() => _NavbarScreenState();
+}
+
+class _NavbarScreenState extends State<NavbarScreen>
+    with SingleTickerProviderStateMixin {
+  
+  int currentTab = 0;
+  final List<Widget> screens = [
+    const HomeScreen(),
+  ];
+  final PageStorageBucket bucket = PageStorageBucket();
+  Widget currentScreen = const HomeScreen();
+  
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showLoginSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          text: 'Logged in successfully!',
+          showConfirmBtn: false,
+        );
+
+        // Automatically dismiss the alert after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          Navigator.pop(context);  // Dismiss the QuickAlert
+        });
+      });
+    }
+  }
+
+  bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageStorage(bucket: bucket, child: currentScreen),
+
+      // Add Timer Button
+      //floatingActionButton: FloatingActionButton(
+        //shape: const CircleBorder(
+          //side: BorderSide(
+            //color: Colors.white,
+          //),
+        //),
+        //backgroundColor: Colors.blue,
+        //onPressed: () {
+          //if (isLoggedIn) {
+            //Navigator.of(context).push(
+              //MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            //);
+          //} else {
+            //Navigator.of(context).push(
+              //MaterialPageRoute(builder: (_) => const LoginScreen()),
+            //);
+          //}
+        //},
+        //child: const Icon(
+          //Icons.add,
+          //color: Colors.white,
+        //),
+      //),
+      //
+
+      // Navigation Bar Button
+      //floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        //shape: const CircularNotchedRectangle(),
+        //notchMargin: 15,
+        color: Colors.blue,
+        child: Container(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              // Home Screen
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        currentScreen = const HomeScreen();
+                        currentTab = 0;
+                      });
+                    },
+                    style: ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(Colors.blue[400])),
+                    icon: currentTab == 0
+                        ? const Icon(
+                            Icons.home,
+                            color: Colors.white,
+                          )
+                        : const Icon(
+                            Icons.home_outlined,
+                            color: Colors.white,
+                          ),
+                  ),
+                ],
+              ),
+              //
+
+              // 
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        currentScreen = const SettingScreen();
+                        currentTab = 1;
+                      });
+                    },
+                    style: ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(Colors.blue[400])),
+                    icon: currentTab == 1
+                        ? const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                          )
+                        : const Icon(
+                            Icons.settings_outlined,
+                            color: Colors.white,
+                          ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        currentScreen = const SettingScreen();
+                        currentTab = 1;
+                      });
+                    },
+                    style: ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(Colors.blue[400])),
+                    icon: currentTab == 2
+                        ? const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                          )
+                        : const Icon(
+                            Icons.settings_outlined,
+                            color: Colors.white,
+                          ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        currentScreen = const SettingScreen();
+                        currentTab = 1;
+                      });
+                    },
+                    style: ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(Colors.blue[400])),
+                    icon: currentTab == 3
+                        ? const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                          )
+                        : const Icon(
+                            Icons.settings_outlined,
+                            color: Colors.white,
+                          ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      //
+    );
+  }
+}

@@ -1,0 +1,76 @@
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: userAlarms.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot alarm = userAlarms[index];
+                  DocumentReference alarmRef = userAlarmsCollection.doc(alarm.id);
+                  bool isActive = alarm['alarmActive'] ?? false;
+                  Future<bool> _getFuture() async {
+                    await Future.delayed(const Duration(seconds: 1));
+                    return !isActive;
+                  }
+
+                  return Container(
+                    height: 150,
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    alignment: Alignment.center,
+                    color: Colors.blue,
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: const EdgeInsets.only(top: 5, left: 10),
+                          child:Text(
+                            alarm['name'],
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Divider(),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(top: 15,),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Text(
+                                alarm['time'],
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              LoadSwitch(
+                                height: 25,
+                                width: 50,
+                                value: isActive,
+                                future: _getFuture,
+                                animationDuration: const Duration(milliseconds: 200),
+                                onChange: (v) {
+                                  isActive = v;
+                                  alarmRef.update({'alarmActive': v});
+                                },
+                                onTap: (v) {
+                                  print('Tapping while value is $v');
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        //
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),

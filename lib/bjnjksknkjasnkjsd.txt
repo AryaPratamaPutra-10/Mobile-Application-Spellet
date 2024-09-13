@@ -1,0 +1,308 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:load_switch/load_switch.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:spelet_v3/Screen/LoginScreen.dart';
+import 'package:dotted_border/dotted_border.dart';
+
+class TimerScreen extends StatefulWidget {
+  const TimerScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TimerScreen> createState() => _TimerScreenState();
+}
+
+class _TimerScreenState extends State<TimerScreen> {
+  final _auth = FirebaseAuth.instance;
+  final DatabaseReference userAlarmsRef =
+      FirebaseDatabase.instance.reference().child('alarms');
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  List<Map<dynamic, dynamic>> userAlarms = [];
+  List<bool> selectedDays = List.generate(7, (index) => false);
+
+  @override
+  void initState() {
+    super.initState();
+    initializeNotifications();
+    fetchUserAlarms();
+    _checkAlarms();
+  }
+
+  Future<void> initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> fetchUserAlarms() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      userAlarmsRef
+          .orderByChild('userId')
+          .equalTo(user.uid)
+          .onValue
+          .listen((event) {
+        List<Map<dynamic, dynamic>> alarms = [];
+        var snapshotValue = event.snapshot.value;
+        if (snapshotValue is Map) {
+          snapshotValue.forEach((key, value) {
+            alarms.add(
+                {...value, 'key': key}); // Include the key in each alarm map
+          });
+          setState(() {
+            userAlarms = alarms;
+          });
+        }
+      }, onError: (error) {
+        print('Error fetching user alarms: $error');
+      });
+    }
+  }
+
+  void _checkAlarms() {
+    DateTime now = DateTime.now();
+    int currentWeekday = now.weekday;
+    String currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+    userAlarms.forEach((alarm) {
+      if (alarm['alarmActive'] == true && alarm['days'].contains(currentWeekday)) {
+        if (alarm['time'] == currentTime && now.second < 10) {
+          _showAlarmNotification(alarm['name']);
+        }
+      }
+    });
+  }
+
+  Future<void> _showAlarmNotification(String alarmName) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+            'alarm_channel_id', 'Alarm Notifications', 'Channel for alarm notifications',
+            importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'Alarm', 'Alarm $alarmName is active!', platformChannelSpecifics,
+        payload: 'alarm');
+  }
+
+  void _showAddTimerModal(BuildContext context) {
+    // Your existing code for adding a new alarm
+    // ...
+  }
+
+  void _showLoginAlert(BuildContext context) {
+    // Your existing code for showing login alert
+    // ...
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = _auth.currentUser;
+    final bool isLoggedIn = user != null;
+
+    return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        toolbarHeight: 70,
+        title: Image.asset(
+          'assets/Logo2.png',
+          fit: BoxFit.contain,
+          height: 75,
+          color: Colors.blue,
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.blue,
+            ),
+          ),
+        ],
+        backgroundColor: Colors.white,
+      ),
+      body: Column(
+        children: [
+          if (!isLoggedIn) ...{
+            Container(
+              height: 80,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: DottedBorder(
+                borderType: BorderType.RRect,
+                radius: const Radius.circular(10),
+                dashPattern: const [10, 10],
+                color: Colors.red.shade200,
+                strokeWidth: 2,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 80,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Column(
+                      children: [
+                        Text(
+                          'You\'re not signed in',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Tap to Sign In',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          } else ...{
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: userAlarms.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    height: 100,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.blue)
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        userAlarms[index]['time'],
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Alarm Name
+                          Text(
+                            userAlarms[index]['name'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          // Days
+                          Text(
+                            userAlarms[index]['days'].join(', '),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: LoadSwitch(
+                        height: 25,
+                        width: 50,
+                        value: userAlarms[index]['alarmActive'] ?? true,
+                        onChange: (value) {
+                          setState(() {
+                            userAlarmsRef
+                                .child(userAlarms[index]['key'])
+                                .update({
+                              'alarmActive': value,
+                            });
+                          });
+                        },
+                        switchDecoration: (value, isActived) => BoxDecoration(
+                          color:
+                              isActived ? Colors.blue.shade300 : Colors.blue.shade100,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        future: () async {
+                          await Future.delayed(const Duration(seconds: 1));
+                          return !userAlarms[index]['alarmActive'];
+                        },
+                        onTap: (v) {
+                          print('Tapping while value is $v');
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              height: 100,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: DottedBorder(
+                borderType: BorderType.RRect,
+                radius: const Radius.circular(10),
+                dashPattern: const [10, 10],
+                color: Colors.blue.shade300,
+                strokeWidth: 2,
+                child: InkWell(
+                  onTap: () {
+                    final user = _auth.currentUser;
+                    if (user == null) {
+                      _showLoginAlert(context);
+                    } else {
+                      _showAddTimerModal(context);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 80,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          }
+        ],
+      ),
+    );
+  }
+}

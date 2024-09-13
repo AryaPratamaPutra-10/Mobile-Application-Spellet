@@ -1,0 +1,71 @@
+
+
+          Container(
+            height: 300,
+            padding: EdgeInsets.all(10),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            alignment: Alignment.center,
+            color: Colors.blue,
+            child: const Column(
+              children: [
+                AnimatedRadialGauge(
+                  duration: Duration(seconds: 2),
+                  curve: Curves.elasticIn,
+                  radius: 100,
+                  value: 20,
+                  axis: GaugeAxis(
+                    min: 0,
+                    max: 100,
+                    degrees: 280,
+                    style: GaugeAxisStyle(
+                      thickness: 20,
+                      background: Colors.white,
+                      segmentSpacing: 0,
+                    ),
+                    pointer: GaugePointer.needle(
+                      width: 15,
+                      height: 60,
+                      color: Colors.black,
+                      position: GaugePointerPosition.center(),
+                      //border: GaugePointerBorder(color: Colors.white, width: 2)
+                    ),
+                    
+                    progressBar: GaugeProgressBar.rounded(
+                      color: Colors.transparent,
+                    ),
+                    segments: [
+                      GaugeSegment(
+                        from: 0,
+                        to: 33,
+                        color: Colors.yellow,
+                        cornerRadius: Radius.circular(2),
+                      ),
+                      GaugeSegment(
+                        from: 33,
+                        to: 66,
+                        color: Colors.orange,
+                        cornerRadius: Radius.circular(2),
+                      ),
+                      GaugeSegment(
+                        from: 66,
+                        to: 100,
+                        color: Colors.red,
+                        cornerRadius: Radius.circular(2),
+                      ),
+                    ],
+                  ),
+                ),
+                RadialGaugeLabel(value: 20,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600
+                  ),
+                ),
+
+                SizedBox(height: 20,),
+
+                Text('Food'),
+              ],
+            ),
+          ),
